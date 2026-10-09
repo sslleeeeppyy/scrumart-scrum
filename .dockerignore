@@ -1,0 +1,7 @@
+.git
+node_modules
+npm-debug.log*
+*.docx
+*.pdf
+~$*
+README.md
