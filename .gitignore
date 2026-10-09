@@ -1,0 +1,6 @@
+node_modules/
+npm-debug.log*
+*.docx
+*.pdf
+~$*
+.DS_Store
