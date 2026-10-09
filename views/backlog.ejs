@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <h1>Бэклог проекта</h1>
+  <a class="btn" href="/tasks/new">+ Добавить задачу</a>
+</div>
+
+<% if (created) { const t = db.findTask(created); %>
+  <p class="notice ok">Задача «<%= t.title %>» добавлена в бэклог.</p>
+<% } %>
+
+<p class="hint">В спринте <%= db.sprint.number %> занято <b><%= db.sprintLoad() %> из <%= db.sprint.capacity %> SP</b>. Ёмкость спринта — velocity прошлого спринта.</p>
+
+<% if (tasks.length === 0) { %>
+  <p class="empty">Бэклог пуст — все задачи уже в спринте.</p>
+<% } else { %>
+<table class="table">
+  <thead>
+    <tr><th>№</th><th>Задача</th><th>Исполнитель</th><th>SP</th><th>Приоритет</th><th></th></tr>
+  </thead>
+  <tbody>
+  <% tasks.forEach((t) => { %>
+    <tr class="<%= t.id === created ? 'highlight' : '' %>">
+      <td><%= t.id %></td>
+      <td><%= t.title %></td>
+      <td><%= db.userName(t.assigneeId) %></td>
+      <td><span class="sp"><%= t.storyPoints %></span></td>
+      <td><span class="prio prio-<%= db.PRIORITIES.indexOf(t.priority) %>"><%= t.priority %></span></td>
+      <td>
+        <form method="post" action="/backlog/<%= t.id %>/to-sprint">
+          <button class="btn small" type="submit">В спринт <%= db.sprint.number %></button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<% } %>
+
+<%- include('partials/footer') %>

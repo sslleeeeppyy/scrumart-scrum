@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · <%= product.name %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="/"><%= product.name %></a>
+    <nav class="menu">
+      <a href="/" class="<%= path === '/' ? 'active' : '' %>">Главная</a>
+      <a href="/backlog" class="<%= path === '/backlog' ? 'active' : '' %>">Бэклог</a>
+      <a href="/tasks/new" class="<%= path === '/tasks/new' || path === '/tasks' ? 'active' : '' %>">Новая задача</a>
+      <a href="/sprint" class="<%= path === '/sprint' ? 'active' : '' %>">Спринт <%= db.sprint.number %></a>
+      <a href="/sprint-overload" class="<%= path === '/sprint-overload' ? 'active' : '' %>">Отказ: спринт переполнен</a>
+    </nav>
+    <span class="who"><%= currentUser.name %> · <%= currentUser.role.toLowerCase() %></span>
+  </div>
+</header>
+<div class="project-line wrap">Проект: <b><%= db.project.title %></b></div>
+<main class="wrap">

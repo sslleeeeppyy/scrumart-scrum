@@ -1,0 +1,47 @@
+<%- include('partials/header') %>
+
+<h1>Новая задача в бэклоге</h1>
+
+<% if (errors.length) { %>
+  <div class="notice err">
+    <b>Задача не сохранена:</b>
+    <ul><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul>
+  </div>
+<% } %>
+
+<form class="form" method="post" action="/tasks" novalidate>
+  <label>Название задачи
+    <input name="title" maxlength="120" value="<%= form.title || '' %>" placeholder="Например: Монтаж бэкстейджа">
+  </label>
+
+  <label>Исполнитель
+    <select name="assigneeId">
+      <option value="">Не назначен</option>
+      <% db.users.forEach((u) => { %>
+        <option value="<%= u.id %>" <%= String(form.assigneeId) === String(u.id) ? 'selected' : '' %>><%= u.name %> — <%= u.role.toLowerCase() %></option>
+      <% }) %>
+    </select>
+  </label>
+
+  <label>Оценка, story points (шкала Фибоначчи)
+    <select name="storyPoints">
+      <option value="">— выберите —</option>
+      <% db.FIBONACCI.forEach((n) => { %>
+        <option value="<%= n %>" <%= String(form.storyPoints) === String(n) ? 'selected' : '' %>><%= n %></option>
+      <% }) %>
+    </select>
+  </label>
+
+  <label>Приоритет
+    <select name="priority">
+      <option value="">— выберите —</option>
+      <% db.PRIORITIES.forEach((p) => { %>
+        <option <%= form.priority === p ? 'selected' : '' %>><%= p %></option>
+      <% }) %>
+    </select>
+  </label>
+
+  <button class="btn" type="submit">Сохранить в бэклог</button>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,17 +1,32 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= product.name %></title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-  <main class="intro">
-    <h1><%= product.name %></h1>
-    <p class="lead"><%= product.description %></p>
-    <p class="version">Версия <%= product.version %></p>
-    <p class="status">Разработка продолжается</p>
-  </main>
-</body>
-</html>
+<%- include('partials/header') %>
+
+<h1>Главная</h1>
+<p class="lead"><%= product.description %></p>
+
+<section class="stats">
+  <div class="stat">
+    <span class="stat-label">Спринт <%= db.sprint.number %></span>
+    <span class="stat-value"><%= db.sprint.goal %></span>
+    <span class="stat-note"><%= db.sprint.start.split('-').reverse().join('.') %> — <%= db.sprint.end.split('-').reverse().join('.') %></span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Загрузка спринта</span>
+    <span class="stat-value"><%= load %> из <%= db.sprint.capacity %> SP</span>
+    <span class="stat-note">выполнено <%= done %> SP</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Бэклог</span>
+    <span class="stat-value"><%= backlogCount %> задач</span>
+    <span class="stat-note">ждут планирования</span>
+  </div>
+</section>
+
+<h2>Что можно сделать</h2>
+<ul class="actions">
+  <li><a href="/tasks/new">Добавить задачу в бэклог</a> — название, исполнитель, оценка в story points, приоритет.</li>
+  <li><a href="/backlog">Посмотреть бэклог</a> и перенести задачу в текущий спринт.</li>
+  <li><a href="/sprint">Открыть Scrum-доску</a> спринта <%= db.sprint.number %> и передвинуть задачу по колонкам.</li>
+  <li><a href="/sprint-overload">Посмотреть отказ</a>: задача не помещается в спринт, потому что превышена ёмкость команды.</li>
+</ul>
+
+<%- include('partials/footer') %>

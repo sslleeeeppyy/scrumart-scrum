@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <h1>Спринт <%= db.sprint.number %>: <%= db.sprint.goal %></h1>
+</div>
+
+<% if (added) { const t = db.findTask(added); %>
+  <p class="notice ok">Задача «<%= t.title %>» (<%= t.storyPoints %> SP) перенесена из бэклога в спринт.</p>
+<% } %>
+
+<div class="sprint-info">
+  <span><%= db.sprint.start.split('-').reverse().join('.') %> — <%= db.sprint.end.split('-').reverse().join('.') %></span>
+  <span>Загрузка: <b><%= load %> из <%= db.sprint.capacity %> SP</b></span>
+  <span>Выполнено: <b><%= done %> SP</b></span>
+</div>
+<div class="bar" title="Загрузка спринта">
+  <div class="bar-done" style="width: <%= Math.round(done / db.sprint.capacity * 100) %>%"></div>
+  <div class="bar-load" style="width: <%= Math.round((load - done) / db.sprint.capacity * 100) %>%"></div>
+</div>
+
+<section class="board">
+  <% columns.forEach((col) => { %>
+    <div class="column">
+      <h2><%= col.status %> <span class="count"><%= col.tasks.length %></span></h2>
+      <% if (col.tasks.length === 0) { %><p class="empty">Нет задач</p><% } %>
+      <% col.tasks.forEach((t) => { %>
+        <article class="card <%= t.id === added ? 'highlight' : '' %>">
+          <div class="card-title"><%= t.title %></div>
+          <div class="card-meta">
+            <span><%= db.userName(t.assigneeId) %></span>
+            <span class="sp"><%= t.storyPoints %> SP</span>
+          </div>
+          <% if (col.status !== 'Готово') { %>
+            <form method="post" action="/sprint/tasks/<%= t.id %>/next">
+              <button class="btn small ghost" type="submit">→ <%= db.STATUSES[db.STATUSES.indexOf(col.status) + 1] %></button>
+            </form>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% }) %>
+</section>
+
+<%- include('partials/footer') %>
