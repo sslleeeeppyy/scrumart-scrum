@@ -1,0 +1,17 @@
+{
+  "name": "scrumart-scrum",
+  "version": "0.0.2",
+  "description": "ScrumArt — веб-сервис управления проектами для небольших студий видеопродакшена (модуль Scrum)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "ejs": "3.1.10",
+    "express": "4.21.2"
+  }
+}

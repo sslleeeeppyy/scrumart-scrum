@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+
+<h1>Задача не добавлена в спринт <%= db.sprint.number %></h1>
+
+<% if (isExample) { %>
+  <p class="hint">Страница открыта напрямую — ниже показан пример отказа для задачи из бэклога. Тот же текст появляется после кнопки «В спринт» в бэклоге.</p>
+<% } %>
+
+<% if (task) { %>
+  <div class="notice err refusal">
+    <p><b>Что пытались сделать:</b> перенести задачу «<%= task.title %>» (<%= task.storyPoints %> SP, исполнитель — <%= db.userName(task.assigneeId) %>) из бэклога в спринт <%= db.sprint.number %> «<%= db.sprint.goal %>».</p>
+    <p><b>Почему не принято:</b> ёмкость спринта — <%= db.sprint.capacity %> SP (velocity команды в прошлом спринте). Сейчас в спринте уже <%= load %> SP, свободно <%= free %> SP. После добавления получилось бы <%= load + task.storyPoints %> SP — на <%= load + task.storyPoints - db.sprint.capacity %> SP больше, чем команда успевает сделать за спринт.</p>
+    <p><b>Что можно сделать:</b> оставить задачу в бэклоге до следующего спринта, разбить её на части не больше <%= free %> SP или убрать из спринта менее важную задачу.</p>
+  </div>
+<% } else { %>
+  <p class="notice ok">Сейчас в бэклоге нет задач, которые не поместились бы в спринт: свободно <%= free %> SP.</p>
+<% } %>
+
+<p><a class="btn" href="/backlog">← Вернуться в бэклог</a> <a class="btn ghost" href="/sprint">Открыть Scrum-доску</a></p>
+
+<%- include('partials/footer') %>
