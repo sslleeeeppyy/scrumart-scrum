@@ -11,6 +11,9 @@ const PORT = process.env.PORT || 8080;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+// Bootstrap и иконки раздаются из node_modules внутри образа — без CDN, страницы открываются без интернета
+app.use('/vendor/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
+app.use('/vendor/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons/font')));
 app.use(express.urlencoded({ extended: false }));
 
 // Название, описание и версия — одни и те же на всех страницах и в package.json
@@ -55,8 +58,10 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send(
     `<!doctype html><meta charset="utf-8"><title>Ошибка · ${product.name}</title>` +
-    `<h1>Сервис временно недоступен</h1><p>Не удалось обратиться к базе данных. Попробуйте обновить страницу.</p>` +
-    '<p><a href="/">На главную</a></p>',
+    '<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">' +
+    '<div class="container py-5"><h1 class="h3">Сервис временно недоступен</h1>' +
+    '<p class="text-secondary">Не удалось обратиться к базе данных. Попробуйте обновить страницу.</p>' +
+    '<a class="btn btn-primary" href="/">На главную</a></div>',
   );
 });
 

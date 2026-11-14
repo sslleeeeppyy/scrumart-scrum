@@ -1,47 +1,83 @@
 <%- include('partials/header') %>
 
-<h1>Новая задача в бэклоге</h1>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><a href="/backlog">Бэклог</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Новая задача</li>
+  </ol>
+</nav>
 
-<% if (errors.length) { %>
-  <div class="notice err">
-    <b>Задача не сохранена:</b>
-    <ul><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul>
+<div class="row">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Новая задача в бэклоге</h1>
+
+        <% if (Object.keys(errors).length) { %>
+          <div class="alert alert-danger d-flex gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div><b>Задача не сохранена.</b> Исправьте поля, отмеченные красным.</div>
+          </div>
+        <% } %>
+
+        <form method="post" action="/tasks" novalidate>
+          <div class="mb-3">
+            <label class="form-label fw-medium" for="title">Название задачи</label>
+            <input class="form-control<%= errors.title ? ' is-invalid' : '' %>" id="title" name="title" maxlength="120" value="<%= form.title || '' %>" placeholder="Например: Монтаж бэкстейджа">
+            <% if (errors.title) { %><div class="invalid-feedback"><%= errors.title %></div><% } %>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium" for="assigneeId">Исполнитель</label>
+            <select class="form-select<%= errors.assigneeId ? ' is-invalid' : '' %>" id="assigneeId" name="assigneeId">
+              <option value="">Не назначен</option>
+              <% users.forEach((u) => { %>
+                <option value="<%= u.id %>" <%= String(form.assigneeId) === String(u.id) ? 'selected' : '' %>><%= u.name %> — <%= u.role.toLowerCase() %></option>
+              <% }) %>
+            </select>
+            <% if (errors.assigneeId) { %><div class="invalid-feedback"><%= errors.assigneeId %></div><% } %>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <label class="form-label fw-medium" for="storyPoints">Оценка, story points</label>
+              <select class="form-select<%= errors.storyPoints ? ' is-invalid' : '' %>" id="storyPoints" name="storyPoints">
+                <option value="">— выберите —</option>
+                <% FIBONACCI.forEach((n) => { %>
+                  <option value="<%= n %>" <%= String(form.storyPoints) === String(n) ? 'selected' : '' %>><%= n %></option>
+                <% }) %>
+              </select>
+              <% if (errors.storyPoints) { %><div class="invalid-feedback"><%= errors.storyPoints %></div><% } else { %><div class="form-text">Шкала Фибоначчи: <%= FIBONACCI.join(', ') %>.</div><% } %>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-medium" for="priority">Приоритет</label>
+              <select class="form-select<%= errors.priority ? ' is-invalid' : '' %>" id="priority" name="priority">
+                <option value="">— выберите —</option>
+                <% PRIORITIES.forEach((p) => { %>
+                  <option <%= form.priority === p ? 'selected' : '' %>><%= p %></option>
+                <% }) %>
+              </select>
+              <% if (errors.priority) { %><div class="invalid-feedback"><%= errors.priority %></div><% } %>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-save me-1"></i>Сохранить в бэклог</button>
+            <a class="btn btn-outline-secondary" href="/backlog">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
-<% } %>
-
-<form class="form" method="post" action="/tasks" novalidate>
-  <label>Название задачи
-    <input name="title" maxlength="120" value="<%= form.title || '' %>" placeholder="Например: Монтаж бэкстейджа">
-  </label>
-
-  <label>Исполнитель
-    <select name="assigneeId">
-      <option value="">Не назначен</option>
-      <% users.forEach((u) => { %>
-        <option value="<%= u.id %>" <%= String(form.assigneeId) === String(u.id) ? 'selected' : '' %>><%= u.name %> — <%= u.role.toLowerCase() %></option>
-      <% }) %>
-    </select>
-  </label>
-
-  <label>Оценка, story points (шкала Фибоначчи)
-    <select name="storyPoints">
-      <option value="">— выберите —</option>
-      <% FIBONACCI.forEach((n) => { %>
-        <option value="<%= n %>" <%= String(form.storyPoints) === String(n) ? 'selected' : '' %>><%= n %></option>
-      <% }) %>
-    </select>
-  </label>
-
-  <label>Приоритет
-    <select name="priority">
-      <option value="">— выберите —</option>
-      <% PRIORITIES.forEach((p) => { %>
-        <option <%= form.priority === p ? 'selected' : '' %>><%= p %></option>
-      <% }) %>
-    </select>
-  </label>
-
-  <button class="btn" type="submit">Сохранить в бэклог</button>
-</form>
+  <div class="col-lg-5 mt-3 mt-lg-0">
+    <div class="card border-0 bg-body-secondary">
+      <div class="card-body small text-secondary">
+        <div class="fw-semibold text-body mb-1"><i class="bi bi-info-circle me-1"></i>Как оценивать</div>
+        Оценка — относительная сложность задачи в story points. Ёмкость спринта <%= sprint.number %> — <%= sprint.capacity %> SP:
+        задача крупнее свободного остатка в спринт не попадёт. Крупную задачу лучше разбить на части.
+      </div>
+    </div>
+  </div>
+</div>
 
 <%- include('partials/footer') %>

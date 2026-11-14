@@ -18,7 +18,7 @@ router.get('/backlog', ah(async (req, res) => {
 
 // Форма новой задачи
 router.get('/tasks/new', (req, res) => {
-  res.render('task-new', { title: 'Новая задача', errors: [], form: {} });
+  res.render('task-new', { title: 'Новая задача', errors: {}, form: {} });
 });
 
 // Создание задачи в бэклоге (изменение данных)
@@ -30,18 +30,19 @@ router.post('/tasks', ah(async (req, res) => {
     priority: req.body.priority,
   };
 
-  const errors = [];
-  if (!form.title) errors.push('Укажите название задачи.');
-  if (form.title.length > 120) errors.push('Название задачи — не длиннее 120 символов.');
+  // Ошибки по полям — чтобы показать каждую под своим полем формы
+  const errors = {};
+  if (!form.title) errors.title = 'Укажите название задачи.';
+  else if (form.title.length > 120) errors.title = 'Название задачи — не длиннее 120 символов.';
   if (!db.FIBONACCI.includes(form.storyPoints)) {
-    errors.push(`Оценка в story points должна быть числом из шкалы Фибоначчи: ${db.FIBONACCI.join(', ')}.`);
+    errors.storyPoints = `Оценка в story points должна быть числом из шкалы Фибоначчи: ${db.FIBONACCI.join(', ')}.`;
   }
-  if (!db.PRIORITIES.includes(form.priority)) errors.push('Выберите приоритет задачи.');
+  if (!db.PRIORITIES.includes(form.priority)) errors.priority = 'Выберите приоритет задачи.';
   if (form.assigneeId !== null && !res.locals.users.some((u) => u.id === form.assigneeId)) {
-    errors.push('Выбранный исполнитель не входит в команду проекта.');
+    errors.assigneeId = 'Выбранный исполнитель не входит в команду проекта.';
   }
 
-  if (errors.length) {
+  if (Object.keys(errors).length) {
     return res.status(422).render('task-new', { title: 'Новая задача', errors, form: req.body });
   }
 

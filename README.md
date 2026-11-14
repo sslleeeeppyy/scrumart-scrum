@@ -2,18 +2,18 @@
 
 Веб-сервис для небольших студий видеопродакшена: продюсер ведёт бэклог проекта, планирует спринты, а режиссёр, оператор и монтажёр видят свои задачи на Scrum-доске.
 
-Стек: Node.js 20 + Express 4.21.2, страницы рисует шаблонизатор EJS 3.1.10. Данные хранятся в PostgreSQL 16 (второй сервис `db` в `docker-compose.yml`), доступ — библиотека `pg` 8.16.3. Версия 0.0.3.
+Стек: Node.js 20 + Express 4.21.2, страницы рисует шаблонизатор EJS 3.1.10. Данные хранятся в PostgreSQL 16 (второй сервис `db` в `docker-compose.yml`), доступ — библиотека `pg` 8.16.3. Оформление — Bootstrap 5.3.3 и Bootstrap Icons 1.11.3 из npm, файлы внутри образа (без CDN). Версия 0.0.4.
 
 ## Запуск
 
 ```text
 Репозиторий: https://github.com/sslleeeeppyy/scrumart-scrum
-Ветка: lab3
-Pull Request: https://github.com/sslleeeeppyy/scrumart-scrum/pull/3
-Образ: nikitavrazhkin/mispisit-lab1:0.0.3
+Ветка: lab4
+Pull Request: https://github.com/sslleeeeppyy/scrumart-scrum/pull/4
+Образ: nikitavrazhkin/mispisit-lab1:0.0.4
 Страница образа: https://hub.docker.com/r/nikitavrazhkin/mispisit-lab1
 
-git clone -b lab3 https://github.com/sslleeeeppyy/scrumart-scrum
+git clone -b lab4 https://github.com/sslleeeeppyy/scrumart-scrum
 cd scrumart-scrum
 docker compose up -d
 ```
@@ -41,8 +41,8 @@ routes/backlog.js      бэклог, создание задачи, перено
 routes/sprint.js       Scrum-доска, смена статуса, страница отказа
 routes/util.js         обёртка async-обработчиков
 data/db.js             пул pg, схема (CREATE TABLE IF NOT EXISTS), справочники, запросы
-views/partials/        header.ejs (меню), footer.ejs (версия)
+views/partials/        header.ejs (навбар Bootstrap с версией), footer.ejs
 views/*.ejs            index, backlog, task-new, sprint, sprint-overload, not-found
-public/style.css       стили
+public/style.css       свои немногие стили поверх Bootstrap
 docker-compose.yml     app + db (postgres:16) + том dbdata
 ```

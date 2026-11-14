@@ -1,7 +1,10 @@
 <%- include('partials/header') %>
 
-<h1>Страница не найдена</h1>
-<p>По адресу <code><%= path %></code> ничего нет — возможно, задача уже перенесена или такой записи не существует.</p>
-<p><a class="btn" href="/">На главную</a></p>
+<div class="text-center py-5">
+  <i class="bi bi-signpost-split display-4 text-brand"></i>
+  <h1 class="h3 mt-3">Страница не найдена</h1>
+  <p class="text-secondary">По адресу <code><%= path %></code> ничего нет — возможно, задача уже перенесена или такой записи не существует.</p>
+  <a class="btn btn-primary" href="/"><i class="bi bi-house me-1"></i>На главную</a>
+</div>
 
 <%- include('partials/footer') %>
