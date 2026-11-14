@@ -1,0 +1,48 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <h1>Спринт <%= sprint.number %>: <%= sprint.goal %></h1>
+</div>
+
+<% if (addedTask) { %>
+  <p class="notice ok">Задача «<%= addedTask.title %>» (<%= addedTask.storyPoints %> SP) перенесена из бэклога в спринт.</p>
+<% } %>
+
+<div class="sprint-info">
+  <span><%= fmtDate(sprint.start) %> — <%= fmtDate(sprint.end) %></span>
+  <span>Загрузка: <b><%= sprint.load %> из <%= sprint.capacity %> SP</b></span>
+  <span>Выполнено: <b><%= sprint.done %> SP</b></span>
+</div>
+<div class="bar" title="Загрузка спринта">
+  <div class="bar-done" style="width: <%= Math.round(sprint.done / sprint.capacity * 100) %>%"></div>
+  <div class="bar-load" style="width: <%= Math.round((sprint.load - sprint.done) / sprint.capacity * 100) %>%"></div>
+</div>
+
+<% if (sprint.count === 0) { %>
+  <p class="hint">В спринте пока нет задач. Перенесите их из <a href="/backlog">бэклога</a>.</p>
+<% } %>
+
+<section class="board">
+  <% columns.forEach((col) => { %>
+    <div class="column">
+      <h2><%= col.status %> <span class="count"><%= col.tasks.length %></span></h2>
+      <% if (col.tasks.length === 0) { %><p class="empty">Нет задач</p><% } %>
+      <% col.tasks.forEach((t) => { %>
+        <article class="card <%= t.id === added ? 'highlight' : '' %>">
+          <div class="card-title"><%= t.title %></div>
+          <div class="card-meta">
+            <span><%= t.assignee %></span>
+            <span class="sp"><%= t.storyPoints %> SP</span>
+          </div>
+          <% if (col.status !== 'Готово') { %>
+            <form method="post" action="/sprint/tasks/<%= t.id %>/next">
+              <button class="btn small ghost" type="submit">→ <%= STATUSES[STATUSES.indexOf(col.status) + 1] %></button>
+            </form>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% }) %>
+</section>
+
+<%- include('partials/footer') %>

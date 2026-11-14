@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+
+<h1>Задача не добавлена в спринт <%= sprint.number %></h1>
+
+<% if (refusal) { %>
+  <% if (!fromAction) { %>
+    <p class="hint">Страница открыта напрямую — показан последний отказ из базы (всего отказов: <%= total %>). Тот же текст появляется после кнопки «В спринт» в бэклоге.</p>
+  <% } %>
+  <div class="notice err refusal">
+    <p><b>Кто пытался:</b> <%= refusal.who %><%= refusal.whoRole ? ` (${refusal.whoRole.toLowerCase()})` : '' %>, <%= new Date(refusal.at).toLocaleString('ru-RU', { timeZone: 'Europe/Ulyanovsk' }) %>.</p>
+    <p><b>Что пытались сделать:</b> перенести задачу «<%= refusal.title %>» (<%= refusal.storyPoints %> SP, исполнитель — <%= refusal.assignee %>) из бэклога в спринт <%= refusal.sprintNumber %> «<%= refusal.sprintGoal %>».</p>
+    <p><b>Почему не принято:</b> ёмкость спринта — <%= refusal.capacity %> SP (velocity команды). В спринте уже было <%= refusal.load %> SP, свободно <%= Math.max(refusal.capacity - refusal.load, 0) %> SP. После добавления получилось бы <%= refusal.load + refusal.storyPoints %> SP — на <%= refusal.load + refusal.storyPoints - refusal.capacity %> SP больше, чем команда успевает сделать за спринт.</p>
+    <p><b>Что можно сделать:</b> оставить задачу в бэклоге до следующего спринта, разбить её на части не больше <%= Math.max(refusal.capacity - refusal.load, 0) %> SP или убрать из спринта менее важную задачу.</p>
+  </div>
+<% } else { %>
+  <p class="hint">Отказов пока не было. Ниже — пример: так система ответит, если задача не помещается в спринт.</p>
+  <div class="notice err refusal">
+    <p><b>Что пытались сделать:</b> например, перенести задачу на 8 SP в спринт <%= sprint.number %>, где уже занято 18 из <%= sprint.capacity %> SP.</p>
+    <p><b>Почему не принято:</b> ёмкость спринта — <%= sprint.capacity %> SP (velocity команды). После добавления получилось бы 26 SP — на <%= 26 - sprint.capacity %> SP больше, чем команда успевает сделать за спринт.</p>
+    <p><b>Сейчас в спринте:</b> <%= sprint.load %> из <%= sprint.capacity %> SP, свободно <%= Math.max(sprint.capacity - sprint.load, 0) %> SP. Задача крупнее свободного остатка получит такой же отказ, и он сохранится в базе.</p>
+  </div>
+<% } %>
+
+<p><a class="btn" href="/backlog">← Вернуться в бэклог</a> <a class="btn ghost" href="/sprint">Открыть Scrum-доску</a></p>
+
+<%- include('partials/footer') %>
