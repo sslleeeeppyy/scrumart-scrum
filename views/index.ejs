@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<div class="p-4 p-md-5 mb-4 bg-body rounded-3 border shadow-sm">
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+    <h1 class="h2 mb-0">ScrumArt — модуль Scrum</h1>
+    <span class="badge text-bg-primary fs-6">Версия <%= product.version %></span>
+  </div>
+  <p class="lead text-secondary mb-3"><%= product.description %></p>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" href="/tasks/new"><i class="bi bi-plus-lg me-1"></i>Новая задача</a>
+    <a class="btn btn-outline-primary" href="/sprint"><i class="bi bi-kanban me-1"></i>Scrum-доска</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body d-flex gap-3">
+      <span class="stat-icon"><i class="bi bi-flag"></i></span>
+      <div>
+        <div class="small text-secondary">Спринт <%= sprint.number %> · <%= fmtDate(sprint.start) %> — <%= fmtDate(sprint.end) %></div>
+        <div class="fw-semibold"><%= sprint.goal %></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body d-flex gap-3">
+      <span class="stat-icon"><i class="bi bi-speedometer2"></i></span>
+      <div class="flex-grow-1">
+        <div class="small text-secondary">Загрузка спринта</div>
+        <div class="fw-semibold"><%= sprint.load %> из <%= sprint.capacity %> SP <span class="text-secondary fw-normal small">· выполнено <%= sprint.done %></span></div>
+        <div class="progress mt-2" style="height: 6px" role="progressbar" aria-label="Загрузка спринта" aria-valuenow="<%= sprint.load %>" aria-valuemin="0" aria-valuemax="<%= sprint.capacity %>">
+          <div class="progress-bar" style="width: <%= Math.round(sprint.load / sprint.capacity * 100) %>%"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body d-flex gap-3">
+      <span class="stat-icon"><i class="bi bi-inboxes"></i></span>
+      <div>
+        <div class="small text-secondary">Бэклог</div>
+        <div class="fw-semibold"><%= backlogCount %> задач ждут планирования</div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<h2 class="h5 mb-3">Что можно сделать</h2>
+<div class="row g-3">
+  <% [
+    { href: '/tasks/new', icon: 'plus-circle', title: 'Добавить задачу', text: 'Название, исполнитель, оценка в story points, приоритет.' },
+    { href: '/backlog', icon: 'list-task', title: 'Бэклог проекта', text: 'Список задач по приоритету и перенос в текущий спринт.' },
+    { href: '/sprint', icon: 'kanban', title: 'Scrum-доска', text: 'Задачи спринта ' + sprint.number + ' по колонкам, перевод в следующую.' },
+    { href: '/sprint-overload', icon: 'exclamation-octagon', title: 'Отказ: спринт переполнен', text: 'Почему задача не помещается в ёмкость команды.' },
+  ].forEach((a) => { %>
+    <div class="col-sm-6 col-lg-3">
+      <a class="card h-100 border-0 shadow-sm text-decoration-none text-body action-card" href="<%= a.href %>">
+        <div class="card-body">
+          <i class="bi bi-<%= a.icon %> fs-3 text-brand"></i>
+          <div class="fw-semibold mt-2"><%= a.title %></div>
+          <div class="small text-secondary"><%= a.text %></div>
+        </div>
+      </a>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

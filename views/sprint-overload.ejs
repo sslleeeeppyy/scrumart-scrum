@@ -1,0 +1,52 @@
+<%- include('partials/header') %>
+
+<h1 class="h3 mb-3"><i class="bi bi-exclamation-octagon text-danger me-2"></i>Задача не добавлена в спринт <%= sprint.number %></h1>
+
+<% if (refusal) { %>
+  <% if (!fromAction) { %>
+    <p class="text-secondary small">Страница открыта напрямую — показан последний отказ из базы (всего отказов: <%= total %>). Тот же текст появляется после кнопки «В спринт» в бэклоге.</p>
+  <% } %>
+  <% const free = Math.max(refusal.capacity - refusal.load, 0), after = refusal.load + refusal.storyPoints; %>
+  <div class="card border-danger shadow-sm mb-3">
+    <div class="card-header bg-danger-subtle text-danger-emphasis fw-semibold">Отказ: превышена ёмкость спринта</div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Кто пытался</dt>
+        <dd class="col-sm-9"><%= refusal.who %><%= refusal.whoRole ? ` (${refusal.whoRole.toLowerCase()})` : '' %>, <%= new Date(refusal.at).toLocaleString('ru-RU', { timeZone: 'Europe/Ulyanovsk' }) %></dd>
+        <dt class="col-sm-3">Что пытались сделать</dt>
+        <dd class="col-sm-9">Перенести задачу «<%= refusal.title %>» (<%= refusal.storyPoints %> SP, исполнитель — <%= refusal.assignee %>) из бэклога в спринт <%= refusal.sprintNumber %> «<%= refusal.sprintGoal %>».</dd>
+        <dt class="col-sm-3">Почему не принято</dt>
+        <dd class="col-sm-9">Ёмкость спринта — <%= refusal.capacity %> SP (velocity команды). В спринте уже было <%= refusal.load %> SP, свободно <%= free %> SP. После добавления получилось бы <%= after %> SP — на <%= after - refusal.capacity %> SP больше, чем команда успевает сделать за спринт.</dd>
+        <dt class="col-sm-3">Что можно сделать</dt>
+        <dd class="col-sm-9 mb-0">Оставить задачу в бэклоге до следующего спринта, разбить её на части не больше <%= free %> SP или убрать из спринта менее важную задачу.</dd>
+      </dl>
+    </div>
+    <div class="card-footer bg-body small text-secondary">
+      Загрузка в момент отказа: <%= refusal.load %> + <%= refusal.storyPoints %> = <%= after %> SP при ёмкости <%= refusal.capacity %> SP
+    </div>
+  </div>
+<% } else { %>
+  <div class="alert alert-light border">
+    <i class="bi bi-info-circle text-brand me-1"></i>
+    Отказов пока не было — ниже пример, как система ответит, если задача не помещается в спринт.
+    Сейчас в спринте <%= sprint.load %> из <%= sprint.capacity %> SP, свободно <%= Math.max(sprint.capacity - sprint.load, 0) %> SP.
+  </div>
+  <div class="card border-danger-subtle shadow-sm mb-3">
+    <div class="card-header bg-danger-subtle text-danger-emphasis fw-semibold">Пример отказа</div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Что пытались сделать</dt>
+        <dd class="col-sm-9">Например, перенести задачу на 8 SP в спринт <%= sprint.number %>, где уже занято 18 из <%= sprint.capacity %> SP.</dd>
+        <dt class="col-sm-3">Почему не принято</dt>
+        <dd class="col-sm-9 mb-0">Ёмкость спринта — <%= sprint.capacity %> SP (velocity команды). После добавления получилось бы 26 SP — на <%= 26 - sprint.capacity %> SP больше, чем команда успевает сделать. Настоящий отказ сохраняется в базе и показывается здесь.</dd>
+      </dl>
+    </div>
+  </div>
+<% } %>
+
+<div class="d-flex flex-wrap gap-2">
+  <a class="btn btn-primary" href="/backlog"><i class="bi bi-arrow-left me-1"></i>Вернуться в бэклог</a>
+  <a class="btn btn-outline-primary" href="/sprint"><i class="bi bi-kanban me-1"></i>Открыть Scrum-доску</a>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · <%= product.name %> <%= product.version %></title>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-body-tertiary d-flex flex-column min-vh-100">
+<%
+  const nav = [
+    { href: '/', icon: 'house', label: 'Главная', active: path === '/' },
+    { href: '/backlog', icon: 'list-task', label: 'Бэклог', active: path === '/backlog' },
+    { href: '/tasks/new', icon: 'plus-circle', label: 'Новая задача', active: path === '/tasks/new' || path === '/tasks' },
+    { href: '/sprint', icon: 'kanban', label: 'Спринт ' + sprint.number, active: path === '/sprint' },
+    { href: '/sprint-overload', icon: 'exclamation-octagon', label: 'Отказы', active: path === '/sprint-overload' },
+  ];
+%>
+<nav class="navbar navbar-expand-lg navbar-dark bg-brand shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <i class="bi bi-camera-reels-fill"></i>
+      <span class="fw-semibold">ScrumArt</span>
+      <span class="opacity-75 d-none d-sm-inline">· модуль Scrum</span>
+      <span class="badge rounded-pill text-bg-light text-brand ms-1">v<%= product.version %></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Меню">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto ms-lg-3">
+        <% nav.forEach((n) => { %>
+          <li class="nav-item">
+            <a class="nav-link<%= n.active ? ' active' : '' %>" href="<%= n.href %>"<%- n.active ? ' aria-current="page"' : '' %>>
+              <i class="bi bi-<%= n.icon %> me-1"></i><%= n.label %>
+            </a>
+          </li>
+        <% }) %>
+      </ul>
+      <span class="navbar-text small">
+        <i class="bi bi-person-circle me-1"></i><%= currentUser.name %> · <%= currentUser.role.toLowerCase() %>
+      </span>
+    </div>
+  </div>
+</nav>
+<main class="container py-4 flex-grow-1">

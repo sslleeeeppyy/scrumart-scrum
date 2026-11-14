@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">Спринт <%= sprint.number %>: <%= sprint.goal %></h1>
+    <div class="text-secondary small"><i class="bi bi-calendar3 me-1"></i><%= fmtDate(sprint.start) %> — <%= fmtDate(sprint.end) %></div>
+  </div>
+  <a class="btn btn-outline-primary" href="/backlog"><i class="bi bi-list-task me-1"></i>Бэклог</a>
+</div>
+
+<% if (addedTask) { %>
+  <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+    <i class="bi bi-check-circle-fill"></i>
+    <div>Задача «<%= addedTask.title %>» (<%= addedTask.storyPoints %> SP) перенесена из бэклога в спринт.</div>
+  </div>
+<% } %>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body py-3">
+    <div class="d-flex flex-wrap justify-content-between small mb-2">
+      <span>Загрузка: <b><%= sprint.load %> из <%= sprint.capacity %> SP</b> · свободно <%= Math.max(sprint.capacity - sprint.load, 0) %> SP</span>
+      <span class="text-success">Выполнено: <b><%= sprint.done %> SP</b></span>
+    </div>
+    <div class="progress-stacked" style="height: 10px">
+      <div class="progress" role="progressbar" aria-label="Выполнено" style="width: <%= Math.round(sprint.done / sprint.capacity * 100) %>%"><div class="progress-bar bg-success"></div></div>
+      <div class="progress" role="progressbar" aria-label="В спринте" style="width: <%= Math.round((sprint.load - sprint.done) / sprint.capacity * 100) %>%"><div class="progress-bar"></div></div>
+    </div>
+  </div>
+</div>
+
+<% if (sprint.count === 0) { %>
+  <div class="alert alert-light border d-flex align-items-center gap-2">
+    <i class="bi bi-info-circle text-brand"></i>
+    <div>В спринте пока нет задач. Перенесите их из <a href="/backlog">бэклога</a> кнопкой «В спринт <%= sprint.number %>».</div>
+  </div>
+<% } %>
+
+<div class="row g-3">
+  <% const icons = ['circle', 'play-circle', 'check-circle']; %>
+  <% columns.forEach((col, ci) => { %>
+    <div class="col-md-4">
+      <div class="board-col p-2 h-100">
+        <h2 class="h6 d-flex justify-content-between align-items-center px-2 pt-1 mb-2">
+          <span><i class="bi bi-<%= icons[ci] %> me-1"></i><%= col.status %></span>
+          <span class="badge text-bg-light"><%= col.tasks.length %></span>
+        </h2>
+        <% if (col.tasks.length === 0) { %><p class="text-secondary small fst-italic px-2">Нет задач</p><% } %>
+        <% col.tasks.forEach((t) => { %>
+          <div class="card task-card prio-<%= PRIORITIES.indexOf(t.priority) %> mb-2<%= t.id === added ? ' added' : '' %>">
+            <div class="card-body p-2">
+              <div class="fw-medium small mb-2"><%= t.title %></div>
+              <div class="d-flex justify-content-between align-items-center small text-secondary">
+                <span><i class="bi bi-person me-1"></i><%= t.assignee %></span>
+                <span class="badge rounded-pill text-bg-primary"><%= t.storyPoints %> SP</span>
+              </div>
+              <% if (ci < STATUSES.length - 1) { %>
+                <form method="post" action="/sprint/tasks/<%= t.id %>/next" class="mt-2 mb-0">
+                  <button class="btn btn-sm btn-outline-secondary w-100" type="submit">→ <%= STATUSES[ci + 1] %></button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

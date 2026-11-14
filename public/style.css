@@ -1,0 +1,42 @@
+/* Свои немногие стили поверх Bootstrap 5.3.3 */
+:root {
+  --brand: #3b3fb6;
+  --brand-dark: #2c2f8f;
+  --bs-primary: #3b3fb6;
+  --bs-primary-rgb: 59, 63, 182;
+  --bs-link-color: #3b3fb6;
+  --bs-link-color-rgb: 59, 63, 182;
+}
+.bg-brand { background: linear-gradient(90deg, var(--brand-dark), var(--brand)); }
+.text-brand { color: var(--brand) !important; }
+.btn-primary {
+  --bs-btn-bg: var(--brand); --bs-btn-border-color: var(--brand);
+  --bs-btn-hover-bg: var(--brand-dark); --bs-btn-hover-border-color: var(--brand-dark);
+  --bs-btn-active-bg: var(--brand-dark); --bs-btn-active-border-color: var(--brand-dark);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--brand); --bs-btn-border-color: var(--brand);
+  --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: var(--brand);
+  --bs-btn-active-bg: var(--brand); --bs-btn-active-border-color: var(--brand);
+}
+.navbar .nav-link.active { background: rgba(255, 255, 255, .15); border-radius: .375rem; }
+
+/* Пустое состояние списка */
+.empty-state { padding: 3rem 1rem; text-align: center; }
+.empty-state > .bi { font-size: 3rem; color: var(--brand); opacity: .55; }
+
+/* Оценка в story points */
+.sp-badge { min-width: 2.2rem; }
+
+/* Scrum-доска */
+.board-col { background: #eef0f6; border-radius: .5rem; min-height: 260px; }
+.task-card { border-left: 4px solid var(--bs-border-color); }
+.task-card.prio-0 { border-left-color: var(--bs-danger); }
+.task-card.prio-1 { border-left-color: var(--bs-warning); }
+.task-card.prio-2 { border-left-color: var(--bs-secondary); }
+.task-card.added { box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .35); }
+
+.stat-icon { width: 2.6rem; height: 2.6rem; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; background: rgba(59, 63, 182, .1); color: var(--brand); font-size: 1.25rem; }
+.action-card { transition: transform .1s, box-shadow .1s; }
+.action-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08) !important; }
+.progress-bar:not([class*="bg-"]) { background-color: var(--brand); }
