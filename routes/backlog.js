@@ -1,17 +1,20 @@
 // Бэклог: просмотр, создание задачи, перенос задачи в спринт (с проверкой ёмкости)
 const express = require('express');
-const db = require('../data/project');
+const db = require('../data/db');
+const { ah } = require('./util');
 
 const router = express.Router();
 
 // Просмотр бэклога
-router.get('/backlog', (req, res) => {
+router.get('/backlog', ah(async (req, res) => {
+  const created = Number(req.query.created) || null;
   res.render('backlog', {
     title: 'Бэклог',
-    tasks: db.backlogTasks(),
-    created: Number(req.query.created) || null,
+    tasks: await db.backlogTasks(),
+    created,
+    createdTask: created ? await db.findTask(created) : null,
   });
-});
+}));
 
 // Форма новой задачи
 router.get('/tasks/new', (req, res) => {
@@ -19,7 +22,7 @@ router.get('/tasks/new', (req, res) => {
 });
 
 // Создание задачи в бэклоге (изменение данных)
-router.post('/tasks', (req, res) => {
+router.post('/tasks', ah(async (req, res) => {
   const form = {
     title: (req.body.title || '').trim(),
     assigneeId: req.body.assigneeId ? Number(req.body.assigneeId) : null,
@@ -34,7 +37,7 @@ router.post('/tasks', (req, res) => {
     errors.push(`Оценка в story points должна быть числом из шкалы Фибоначчи: ${db.FIBONACCI.join(', ')}.`);
   }
   if (!db.PRIORITIES.includes(form.priority)) errors.push('Выберите приоритет задачи.');
-  if (form.assigneeId !== null && !db.users.some((u) => u.id === form.assigneeId)) {
+  if (form.assigneeId !== null && !res.locals.users.some((u) => u.id === form.assigneeId)) {
     errors.push('Выбранный исполнитель не входит в команду проекта.');
   }
 
@@ -42,24 +45,16 @@ router.post('/tasks', (req, res) => {
     return res.status(422).render('task-new', { title: 'Новая задача', errors, form: req.body });
   }
 
-  const task = db.addTask(form);
-  res.redirect(303, `/backlog?created=${task.id}`);
-});
+  const id = await db.addTask(form);
+  res.redirect(303, `/backlog?created=${id}`);
+}));
 
 // Перенос задачи из бэклога в текущий спринт
-router.post('/backlog/:id/to-sprint', (req, res, next) => {
-  const task = db.findTask(Number(req.params.id));
-  if (!task || task.sprint) return next(); // нет такой задачи в бэклоге → 404
-
-  const load = db.sprintLoad();
-  if (load + task.storyPoints > db.sprint.capacity) {
-    // Бизнес-правило Scrum: нельзя брать в спринт больше, чем команда успевает
-    return res.redirect(303, `/sprint-overload?task=${task.id}`);
-  }
-
-  task.sprint = true;
-  task.status = 'К выполнению';
-  res.redirect(303, `/sprint?added=${task.id}`);
-});
+router.post('/backlog/:id/to-sprint', ah(async (req, res, next) => {
+  const result = await db.moveToSprint(Number(req.params.id), res.locals.sprint.id, res.locals.currentUser.id);
+  if (!result) return next(); // нет такой задачи в бэклоге → 404
+  if (result.refusalId) return res.redirect(303, `/sprint-overload?id=${result.refusalId}`);
+  res.redirect(303, `/sprint?added=${req.params.id}`);
+}));
 
 module.exports = router;

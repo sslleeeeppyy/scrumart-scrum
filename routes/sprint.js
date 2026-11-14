@@ -1,50 +1,44 @@
 // Спринт: Scrum-доска, смена статуса задачи, страница отказа при превышении ёмкости
 const express = require('express');
-const db = require('../data/project');
+const db = require('../data/db');
+const { ah } = require('./util');
 
 const router = express.Router();
 
 // Просмотр Scrum-доски текущего спринта
-router.get('/sprint', (req, res) => {
-  const columns = db.STATUSES.map((status) => ({
-    status,
-    tasks: db.sprintTasks().filter((t) => t.status === status),
-  }));
+router.get('/sprint', ah(async (req, res) => {
+  const tasks = await db.sprintTasks(res.locals.sprint.id);
+  const columns = db.STATUSES.map((status) => ({ status, tasks: tasks.filter((t) => t.status === status) }));
+  const added = Number(req.query.added) || null;
   res.render('sprint', {
-    title: `Спринт ${db.sprint.number}`,
+    title: `Спринт ${res.locals.sprint.number}`,
     columns,
-    load: db.sprintLoad(),
-    done: db.sprintDone(),
-    added: Number(req.query.added) || null,
+    added,
+    addedTask: added ? tasks.find((t) => t.id === added) || null : null,
   });
-});
+}));
 
 // Передвинуть задачу в следующую колонку доски
-router.post('/sprint/tasks/:id/next', (req, res, next) => {
-  const task = db.findTask(Number(req.params.id));
-  if (!task || !task.sprint) return next();
-  const i = db.STATUSES.indexOf(task.status);
-  if (i < db.STATUSES.length - 1) task.status = db.STATUSES[i + 1];
+router.post('/sprint/tasks/:id/next', ah(async (req, res, next) => {
+  if (!(await db.nextStatus(Number(req.params.id)))) return next();
   res.redirect(303, '/sprint');
-});
+}));
 
 // Отказ: задача не помещается в спринт.
-// Без параметра показывает пример — самую крупную задачу бэклога, которая не влезет.
-router.get('/sprint-overload', (req, res) => {
-  const load = db.sprintLoad();
-  let task = db.findTask(Number(req.query.task));
-  if (!task || task.sprint) {
-    task = db.backlogTasks()
-      .filter((t) => load + t.storyPoints > db.sprint.capacity)
-      .sort((a, b) => b.storyPoints - a.storyPoints)[0] || null;
+// ?id=N — конкретный отказ из базы; без параметра — последний сохранённый отказ,
+// а если отказов ещё не было — пример с объяснением правила.
+router.get('/sprint-overload', ah(async (req, res) => {
+  const id = req.query.id !== undefined ? Number(req.query.id) : undefined;
+  const refusal = await db.getRefusal(Number.isInteger(id) ? id : undefined);
+  if (id !== undefined && (!refusal || refusal.id !== id)) {
+    return res.status(404).render('not-found', { title: 'Страница не найдена' });
   }
-  res.status(req.query.task ? 409 : 200).render('sprint-overload', {
+  res.render('sprint-overload', {
     title: 'Задача не добавлена в спринт',
-    task,
-    load,
-    free: Math.max(db.sprint.capacity - load, 0),
-    isExample: !req.query.task,
+    refusal,
+    fromAction: id !== undefined,
+    total: await db.refusalCount(),
   });
-});
+}));
 
 module.exports = router;

@@ -2,7 +2,8 @@
 const path = require('path');
 const express = require('express');
 const pkg = require('./package.json');
-const db = require('./data/project');
+const db = require('./data/db');
+const { ah } = require('./routes/util');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -22,23 +23,23 @@ const product = {
   version: pkg.version,
 };
 
-// Общие данные для всех шаблонов (шапка, подвал, текущий пользователь)
-app.use((req, res, next) => {
-  res.locals.product = product;
-  res.locals.db = db;
-  res.locals.path = req.path;
-  res.locals.currentUser = db.users[0]; // демо-вход: продюсер
-  next();
-});
+const fmtDate = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('.') : '');
 
-app.get('/', (req, res) => {
-  res.render('index', {
-    title: 'Главная',
-    load: db.sprintLoad(),
-    done: db.sprintDone(),
-    backlogCount: db.backlogTasks().length,
+// Общие данные для всех шаблонов: продукт, текущий спринт, текущий пользователь
+app.use(ah(async (req, res, next) => {
+  const [sprint, users] = await Promise.all([db.currentSprint(), db.getUsers()]);
+  Object.assign(res.locals, {
+    product, path: req.path, fmtDate, sprint, users,
+    currentUser: users[0], // демо-вход: продюсер (входа в систему в этой версии нет)
+    FIBONACCI: db.FIBONACCI, PRIORITIES: db.PRIORITIES, STATUSES: db.STATUSES,
   });
-});
+  next();
+}));
+
+app.get('/', ah(async (req, res) => {
+  const backlog = await db.backlogTasks();
+  res.render('index', { title: 'Главная', backlogCount: backlog.length });
+}));
 
 app.use(require('./routes/backlog'));
 app.use(require('./routes/sprint'));
@@ -48,7 +49,26 @@ app.use((req, res) => {
   res.status(404).render('not-found', { title: 'Страница не найдена' });
 });
 
-// 0.0.0.0 — чтобы страница открывалась снаружи контейнера
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`${product.name} ${product.version} запущен: http://localhost:${PORT}`);
+// Ошибка базы или кода — понятная страница вместо падения процесса
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send(
+    `<!doctype html><meta charset="utf-8"><title>Ошибка · ${product.name}</title>` +
+    `<h1>Сервис временно недоступен</h1><p>Не удалось обратиться к базе данных. Попробуйте обновить страницу.</p>` +
+    '<p><a href="/">На главную</a></p>',
+  );
 });
+
+// Сначала дожидаемся базы и создаём схему, потом принимаем запросы.
+// 0.0.0.0 — чтобы страница открывалась снаружи контейнера.
+db.init()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`${product.name} ${product.version} запущен: http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Не удалось подключиться к базе:', err.message);
+    process.exit(1);
+  });

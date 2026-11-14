@@ -1,22 +1,26 @@
 <%- include('partials/header') %>
 
 <div class="page-head">
-  <h1>Спринт <%= db.sprint.number %>: <%= db.sprint.goal %></h1>
+  <h1>Спринт <%= sprint.number %>: <%= sprint.goal %></h1>
 </div>
 
-<% if (added) { const t = db.findTask(added); %>
-  <p class="notice ok">Задача «<%= t.title %>» (<%= t.storyPoints %> SP) перенесена из бэклога в спринт.</p>
+<% if (addedTask) { %>
+  <p class="notice ok">Задача «<%= addedTask.title %>» (<%= addedTask.storyPoints %> SP) перенесена из бэклога в спринт.</p>
 <% } %>
 
 <div class="sprint-info">
-  <span><%= db.sprint.start.split('-').reverse().join('.') %> — <%= db.sprint.end.split('-').reverse().join('.') %></span>
-  <span>Загрузка: <b><%= load %> из <%= db.sprint.capacity %> SP</b></span>
-  <span>Выполнено: <b><%= done %> SP</b></span>
+  <span><%= fmtDate(sprint.start) %> — <%= fmtDate(sprint.end) %></span>
+  <span>Загрузка: <b><%= sprint.load %> из <%= sprint.capacity %> SP</b></span>
+  <span>Выполнено: <b><%= sprint.done %> SP</b></span>
 </div>
 <div class="bar" title="Загрузка спринта">
-  <div class="bar-done" style="width: <%= Math.round(done / db.sprint.capacity * 100) %>%"></div>
-  <div class="bar-load" style="width: <%= Math.round((load - done) / db.sprint.capacity * 100) %>%"></div>
+  <div class="bar-done" style="width: <%= Math.round(sprint.done / sprint.capacity * 100) %>%"></div>
+  <div class="bar-load" style="width: <%= Math.round((sprint.load - sprint.done) / sprint.capacity * 100) %>%"></div>
 </div>
+
+<% if (sprint.count === 0) { %>
+  <p class="hint">В спринте пока нет задач. Перенесите их из <a href="/backlog">бэклога</a>.</p>
+<% } %>
 
 <section class="board">
   <% columns.forEach((col) => { %>
@@ -27,12 +31,12 @@
         <article class="card <%= t.id === added ? 'highlight' : '' %>">
           <div class="card-title"><%= t.title %></div>
           <div class="card-meta">
-            <span><%= db.userName(t.assigneeId) %></span>
+            <span><%= t.assignee %></span>
             <span class="sp"><%= t.storyPoints %> SP</span>
           </div>
           <% if (col.status !== 'Готово') { %>
             <form method="post" action="/sprint/tasks/<%= t.id %>/next">
-              <button class="btn small ghost" type="submit">→ <%= db.STATUSES[db.STATUSES.indexOf(col.status) + 1] %></button>
+              <button class="btn small ghost" type="submit">→ <%= STATUSES[STATUSES.indexOf(col.status) + 1] %></button>
             </form>
           <% } %>
         </article>

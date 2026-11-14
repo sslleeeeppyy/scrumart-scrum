@@ -14,11 +14,10 @@
       <a href="/" class="<%= path === '/' ? 'active' : '' %>">Главная</a>
       <a href="/backlog" class="<%= path === '/backlog' ? 'active' : '' %>">Бэклог</a>
       <a href="/tasks/new" class="<%= path === '/tasks/new' || path === '/tasks' ? 'active' : '' %>">Новая задача</a>
-      <a href="/sprint" class="<%= path === '/sprint' ? 'active' : '' %>">Спринт <%= db.sprint.number %></a>
+      <a href="/sprint" class="<%= path === '/sprint' ? 'active' : '' %>">Спринт <%= sprint.number %></a>
       <a href="/sprint-overload" class="<%= path === '/sprint-overload' ? 'active' : '' %>">Отказ: спринт переполнен</a>
     </nav>
     <span class="who"><%= currentUser.name %> · <%= currentUser.role.toLowerCase() %></span>
   </div>
 </header>
-<div class="project-line wrap">Проект: <b><%= db.project.title %></b></div>
 <main class="wrap">

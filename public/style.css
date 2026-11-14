@@ -109,3 +109,4 @@ tr.highlight td { background: var(--ok-soft); }
 .card-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .card form { margin: 0; }
 @media (max-width: 760px) { .board { grid-template-columns: 1fr; } }
+.version { font-weight: 600; margin: 0 0 8px; }
